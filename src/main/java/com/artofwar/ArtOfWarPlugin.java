@@ -2,8 +2,8 @@ package com.artofwar;
 
 import com.google.gson.Gson;
 import com.google.inject.Provides;
-import java.io.File;
-import java.io.FileReader;
+import java.io.Reader;
+import net.runelite.client.util.Filepath;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +22,7 @@ import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.kit.KitType;
-import net.runelite.client.RuneLite;
+
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -35,7 +35,9 @@ import org.slf4j.LoggerFactory;
 @PluginDescriptor(
 		name = "Art of War",
 		description = "scythe plugin",
-		tags = {"scythe"}
+		tags = {"scythe"},
+		internalName = "art-of-war",
+		legacyDataDirectory = "custom-weapon-models"
 )
 public class ArtOfWarPlugin extends Plugin
 {
@@ -51,7 +53,7 @@ public class ArtOfWarPlugin extends Plugin
 	private static final int RUN_ANIMATION_ID = 824;
 	private static final int ATTACK_ANIMATION_ID = 8056;
 	private static final int DEFEND_ANIMATION_ID = 435;
-	private static final String MODEL_FOLDER = "custom-weapon-models";
+
 
 	@Inject
 	private ArtOfWarConfig config;
@@ -103,17 +105,27 @@ public class ArtOfWarPlugin extends Plugin
 	private void loadSelectedModel()
 	{
 		ArtOfWarConfig.ScytheModel selection = config.scytheModel();
-		File modelFile = new File(new File(RuneLite.RUNELITE_DIR, MODEL_FOLDER), selection.getFileName());
+		Filepath modelFile;
+
+		try
+		{
+			modelFile = getPluginDirectory().joinSegment(selection.getFileName());
+		}
+		catch (IOException | RuntimeException ex)
+		{
+			log.error("Failed to access Art of War model directory.", ex);
+			return;
+		}
 
 		if (!modelFile.exists())
 		{
-			log.error("Scythe model not found: {}", modelFile.getAbsolutePath());
+			log.error("Scythe model not found: {}", modelFile);
 			return;
 		}
 
 		ScytheModelData loadedModel;
 
-		try (FileReader reader = new FileReader(modelFile))
+		try (Reader reader = modelFile.openReader())
 		{
 			loadedModel = gson.fromJson(reader, ScytheModelData.class);
 		}
@@ -125,7 +137,7 @@ public class ArtOfWarPlugin extends Plugin
 
 		if (loadedModel == null || loadedModel.vertices == null || loadedModel.faces == null)
 		{
-			log.error("Invalid scythe model: {}", modelFile.getAbsolutePath());
+			log.error("Invalid scythe model: {}", modelFile);
 			return;
 		}
 

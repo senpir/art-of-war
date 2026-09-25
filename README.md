@@ -19,7 +19,7 @@ The scythe model files are distributed separately from the plugin.
 
 Place the downloaded JSON files in:
 
-`.runelite/custom-weapon-models`
+`.runelite//plugin-data/art-of-war
 
 Current filenames:
 

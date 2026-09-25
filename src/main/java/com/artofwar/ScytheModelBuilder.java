@@ -1,4 +1,4 @@
-package com.example;
+package com.artofwar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +10,9 @@ import net.runelite.api.ModelData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CustomModelBuilder
+public class ScytheModelBuilder
 {
-    private static final Logger log = LoggerFactory.getLogger(CustomModelBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(ScytheModelBuilder.class);
     private static final int BASIC_MODEL = 823;
     private static final int TRANSPARENT_MODEL = 18871;
     private static final int PRIORITY_MODEL = 6733;
@@ -20,7 +20,7 @@ public class CustomModelBuilder
     @Inject
     private Client client;
 
-    public Model build(BlenderModelData blender, int pitchDegrees, int rollDegrees)
+    public Model build(ScytheModelData blender, int pitchDegrees, int rollDegrees)
     {
         if (blender == null || blender.vertices == null || blender.faces == null)
         {
@@ -158,7 +158,7 @@ public class CustomModelBuilder
         return model;
     }
 
-    private boolean applyFaceColours(BlenderModelData blender, ModelData modelData)
+    private boolean applyFaceColours(ScytheModelData blender, ModelData modelData)
     {
         if (blender.useVertexColours)
         {

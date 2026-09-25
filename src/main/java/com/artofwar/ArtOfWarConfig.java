@@ -1,11 +1,11 @@
-package com.example;
+package com.artofwar;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("customweaponmodels")
-public interface ExampleConfig extends Config
+@ConfigGroup("artofwar")
+public interface ArtOfWarConfig extends Config
 {
 	enum ScytheModel
 	{

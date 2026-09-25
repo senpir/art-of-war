@@ -1,4 +1,4 @@
-package com.example;
+package com.artofwar;
 
 import javax.inject.Inject;
 import net.runelite.api.Client;
@@ -7,7 +7,7 @@ import net.runelite.api.Player;
 import net.runelite.api.RuneLiteObject;
 import net.runelite.api.coords.LocalPoint;
 
-public class CustomModelSpawner
+public class ScytheModelSpawner
 {
     private static final int FULL_ROTATION = 2048;
     private static final int RENDER_RADIUS = 255;

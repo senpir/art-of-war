@@ -1,4 +1,4 @@
-package com.example;
+package com.artofwar;
 
 import com.google.gson.Gson;
 import com.google.inject.Provides;
@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
 import net.runelite.api.Client;
 import net.runelite.api.EquipmentInventorySlot;
@@ -36,10 +37,15 @@ import org.slf4j.LoggerFactory;
 		description = "scythe plugin",
 		tags = {"scythe"}
 )
-public class ExamplePlugin extends Plugin
+public class ArtOfWarPlugin extends Plugin
 {
-	private static final Logger log = LoggerFactory.getLogger(ExamplePlugin.class);
-	private static final int TARGET_WEAPON_ID = 25739;
+	private static final Logger log = LoggerFactory.getLogger(ArtOfWarPlugin.class);
+	private static final Set<Integer> SUPPORTED_SCYTHE_IDS = Set.of(
+			22486,
+			22325,
+			25736,
+			25739
+	);
 	private static final int IDLE_ANIMATION_ID = 8057;
 	private static final int WALK_ANIMATION_ID = 819;
 	private static final int RUN_ANIMATION_ID = 824;
@@ -48,7 +54,7 @@ public class ExamplePlugin extends Plugin
 	private static final String MODEL_FOLDER = "custom-weapon-models";
 
 	@Inject
-	private ExampleConfig config;
+	private ArtOfWarConfig config;
 
 	@Inject
 	private Gson gson;
@@ -60,12 +66,12 @@ public class ExamplePlugin extends Plugin
 	private ClientThread clientThread;
 
 	@Inject
-	private CustomModelBuilder customModelBuilder;
+	private ScytheModelBuilder scytheModelBuilder;
 
 	@Inject
-	private CustomModelSpawner customModelSpawner;
+	private ScytheModelSpawner scytheModelSpawner;
 
-	private BlenderModelData customModel;
+	private ScytheModelData customModel;
 	private Model renderedModel;
 	private boolean targetWeaponEquipped;
 	private boolean originalWeaponHidden;
@@ -84,7 +90,7 @@ public class ExamplePlugin extends Plugin
 		clientThread.invokeLater(() ->
 		{
 			restoreOriginalWeaponIfStillEquipped();
-			customModelSpawner.despawn();
+			scytheModelSpawner.despawn();
 		});
 
 		targetWeaponEquipped = false;
@@ -96,7 +102,7 @@ public class ExamplePlugin extends Plugin
 
 	private void loadSelectedModel()
 	{
-		ExampleConfig.ScytheModel selection = config.scytheModel();
+		ArtOfWarConfig.ScytheModel selection = config.scytheModel();
 		File modelFile = new File(new File(RuneLite.RUNELITE_DIR, MODEL_FOLDER), selection.getFileName());
 
 		if (!modelFile.exists())
@@ -105,11 +111,11 @@ public class ExamplePlugin extends Plugin
 			return;
 		}
 
-		BlenderModelData loadedModel;
+		ScytheModelData loadedModel;
 
 		try (FileReader reader = new FileReader(modelFile))
 		{
-			loadedModel = gson.fromJson(reader, BlenderModelData.class);
+			loadedModel = gson.fromJson(reader, ScytheModelData.class);
 		}
 		catch (IOException | RuntimeException ex)
 		{
@@ -142,9 +148,9 @@ public class ExamplePlugin extends Plugin
 				return;
 			}
 
-			if (targetWeaponEquipped && customModelSpawner.isSpawned())
+			if (targetWeaponEquipped && scytheModelSpawner.isSpawned())
 			{
-				customModelSpawner.setModel(renderedModel);
+				scytheModelSpawner.setModel(renderedModel);
 			}
 
 			syncEquipmentState();
@@ -166,7 +172,7 @@ public class ExamplePlugin extends Plugin
 			return cached;
 		}
 
-		Model model = customModelBuilder.build(customModel, pitch, roll);
+		Model model = scytheModelBuilder.build(customModel, pitch, roll);
 
 		if (model != null)
 		{
@@ -179,7 +185,7 @@ public class ExamplePlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
-		if ("customweaponmodels".equals(event.getGroup()) && "scytheModel".equals(event.getKey()))
+		if ("artofwarplugin".equals(event.getGroup()) && "scytheModel".equals(event.getKey()))
 		{
 			loadSelectedModel();
 		}
@@ -197,7 +203,7 @@ public class ExamplePlugin extends Plugin
 	@Subscribe
 	public void onClientTick(ClientTick event)
 	{
-		if (!targetWeaponEquipped || !customModelSpawner.isSpawned())
+		if (!targetWeaponEquipped || !scytheModelSpawner.isSpawned())
 		{
 			return;
 		}
@@ -257,7 +263,7 @@ public class ExamplePlugin extends Plugin
 
 		if (state == GameState.LOADING)
 		{
-			customModelSpawner.despawn();
+			scytheModelSpawner.despawn();
 			originalWeaponHidden = false;
 			return;
 		}
@@ -266,7 +272,7 @@ public class ExamplePlugin extends Plugin
 		{
 			targetWeaponEquipped = false;
 			originalWeaponHidden = false;
-			customModelSpawner.despawn();
+			scytheModelSpawner.despawn();
 			return;
 		}
 
@@ -284,10 +290,10 @@ public class ExamplePlugin extends Plugin
 		if (model != null)
 		{
 			renderedModel = model;
-			customModelSpawner.setModel(model);
+			scytheModelSpawner.setModel(model);
 		}
 
-		customModelSpawner.updateTransform(
+		scytheModelSpawner.updateTransform(
 				transform[0],
 				transform[1],
 				transform[2],
@@ -308,16 +314,16 @@ public class ExamplePlugin extends Plugin
 		}
 
 		Item weapon = equipment.getItem(EquipmentInventorySlot.WEAPON.getSlotIdx());
-		boolean equipped = weapon != null && weapon.getId() == TARGET_WEAPON_ID;
+		boolean equipped = weapon != null && SUPPORTED_SCYTHE_IDS.contains(weapon.getId());
 
 		if (equipped)
 		{
 			targetWeaponEquipped = true;
 			hideOriginalWeapon();
 
-			if (renderedModel != null && !customModelSpawner.isSpawned())
+			if (renderedModel != null && !scytheModelSpawner.isSpawned())
 			{
-				customModelSpawner.spawn(renderedModel);
+				scytheModelSpawner.spawn(renderedModel);
 			}
 
 			return;
@@ -325,7 +331,7 @@ public class ExamplePlugin extends Plugin
 
 		targetWeaponEquipped = false;
 		originalWeaponHidden = false;
-		customModelSpawner.despawn();
+		scytheModelSpawner.despawn();
 	}
 
 	private void hideOriginalWeapon()
@@ -376,7 +382,7 @@ public class ExamplePlugin extends Plugin
 
 		Item weapon = equipment.getItem(EquipmentInventorySlot.WEAPON.getSlotIdx());
 
-		if (weapon == null || weapon.getId() != TARGET_WEAPON_ID)
+		if (weapon == null || !SUPPORTED_SCYTHE_IDS.contains(weapon.getId()))
 		{
 			return;
 		}
@@ -403,14 +409,14 @@ public class ExamplePlugin extends Plugin
 			return;
 		}
 
-		equipmentIds[weaponIndex] = PlayerComposition.ITEM_OFFSET + TARGET_WEAPON_ID;
+		equipmentIds[weaponIndex] = PlayerComposition.ITEM_OFFSET + weapon.getId();
 		composition.setHash();
 		originalWeaponHidden = false;
 	}
 
 	@Provides
-	ExampleConfig provideConfig(ConfigManager configManager)
+	ArtOfWarConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(ExampleConfig.class);
+		return configManager.getConfig(ArtOfWarConfig.class);
 	}
 }

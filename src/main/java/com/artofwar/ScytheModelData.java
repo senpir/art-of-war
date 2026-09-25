@@ -1,6 +1,6 @@
-package com.example;
+package com.artofwar;
 
-public class BlenderModelData
+public class ScytheModelData
 {
     public boolean useVertexColours;
     public int[][] vertices;

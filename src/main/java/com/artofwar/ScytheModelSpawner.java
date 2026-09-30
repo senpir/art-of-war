@@ -10,7 +10,6 @@ import net.runelite.api.coords.LocalPoint;
 public class ScytheModelSpawner
 {
     private static final int FULL_ROTATION = 2048;
-    private static final int RENDER_RADIUS = 255;
 
     @Inject
     private Client client;
@@ -28,7 +27,6 @@ public class ScytheModelSpawner
 
         spawnedObject = client.createRuneLiteObject();
         spawnedObject.setModel(model);
-        spawnedObject.setRadius(RENDER_RADIUS);
         spawnedObject.setActive(true);
     }
 
@@ -40,9 +38,35 @@ public class ScytheModelSpawner
         }
     }
 
+    public void replaceModel(Model model)
+    {
+        if (model == null)
+        {
+            return;
+        }
+
+        boolean wasVisible = isVisible();
+
+        despawn();
+        spawn(model);
+
+        if (!wasVisible)
+        {
+            setVisible(false);
+        }
+    }
+
+    public void setVisible(boolean visible)
+    {
+        if (spawnedObject != null && spawnedObject.isActive() != visible)
+        {
+            spawnedObject.setActive(visible);
+        }
+    }
+
     public void updateTransform(int side, int forward, int height, int yawDegrees)
     {
-        if (!isSpawned())
+        if (!isVisible())
         {
             return;
         }
@@ -83,7 +107,6 @@ public class ScytheModelSpawner
         }
 
         spawnedObject.setOrientation(orientation);
-        spawnedObject.setRadius(RENDER_RADIUS);
     }
 
     public void despawn()
@@ -95,7 +118,12 @@ public class ScytheModelSpawner
         }
     }
 
-    public boolean isSpawned()
+    public boolean hasObject()
+    {
+        return spawnedObject != null;
+    }
+
+    public boolean isVisible()
     {
         return spawnedObject != null && spawnedObject.isActive();
     }

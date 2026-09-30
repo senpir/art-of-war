@@ -29,9 +29,9 @@ public class ScytheModelBuilder
 
         int vertexCount = blender.vertices.length;
         int faceCount = blender.faces.length;
-        int[] verticesX = new int[vertexCount];
-        int[] verticesY = new int[vertexCount];
-        int[] verticesZ = new int[vertexCount];
+        float[] verticesX = new float[vertexCount];
+        float[] verticesY = new float[vertexCount];
+        float[] verticesZ = new float[vertexCount];
 
         double pitch = Math.toRadians(pitchDegrees);
         double roll = Math.toRadians(rollDegrees);
@@ -63,9 +63,9 @@ public class ScytheModelBuilder
             x = rolledX;
             y = rolledY;
 
-            verticesX[i] = (int) Math.round(x);
-            verticesY[i] = (int) Math.round(y);
-            verticesZ[i] = (int) Math.round(z);
+            verticesX[i] = (float) x;
+            verticesY[i] = (float) y;
+            verticesZ[i] = (float) z;
         }
 
         int[] faces1 = new int[faceCount];

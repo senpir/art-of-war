@@ -9,21 +9,29 @@ public interface ArtOfWarConfig extends Config
 {
 	enum ScytheModel
 	{
-		MAIDEN("Maiden", "maiden_scythe.json"),
-		XARPUS("Xarpus", "xarpus_scythe.json");
+		MAIDEN("Maiden", "maiden_scythe.json", null),
+		XARPUS("Xarpus", "xarpus_scythe.json", null),
+		BLOAT("Bloat", "bloat_scythe_on.json", "bloat_scythe_off.json");
 
 		private final String label;
 		private final String fileName;
+		private final String alternateFileName;
 
-		ScytheModel(String label, String fileName)
+		ScytheModel(String label, String fileName, String alternateFileName)
 		{
 			this.label = label;
 			this.fileName = fileName;
+			this.alternateFileName = alternateFileName;
 		}
 
 		String getFileName()
 		{
 			return fileName;
+		}
+
+		String getAlternateFileName()
+		{
+			return alternateFileName;
 		}
 
 		@Override

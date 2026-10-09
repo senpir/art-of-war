@@ -4,34 +4,25 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("artofwar")
+@ConfigGroup(ArtOfWarConfig.GROUP)
 public interface ArtOfWarConfig extends Config
 {
+	String GROUP = "artofwar";
+
 	enum ScytheModel
 	{
-		MAIDEN("Maiden", "maiden_scythe.json", null),
-		XARPUS("Xarpus", "xarpus_scythe.json", null),
-		BLOAT("Bloat", "bloat_scythe_on.json", "bloat_scythe_off.json");
+		MAIDEN("Maiden"),
+		BLOAT("Bloat"),
+		NYLO_MAGE("Nylo Mage"),
+		SOTETSEG("Sotetseg"),
+		XARPUS("Xarpus"),
+		VERZIK("Verzik");
 
 		private final String label;
-		private final String fileName;
-		private final String alternateFileName;
 
-		ScytheModel(String label, String fileName, String alternateFileName)
+		ScytheModel(String label)
 		{
 			this.label = label;
-			this.fileName = fileName;
-			this.alternateFileName = alternateFileName;
-		}
-
-		String getFileName()
-		{
-			return fileName;
-		}
-
-		String getAlternateFileName()
-		{
-			return alternateFileName;
 		}
 
 		@Override
@@ -44,7 +35,8 @@ public interface ArtOfWarConfig extends Config
 	@ConfigItem(
 			keyName = "scytheModel",
 			name = "Scythe",
-			description = "Choose a scythe model"
+			description = "Select the custom scythe model",
+			position = 0
 	)
 	default ScytheModel scytheModel()
 	{

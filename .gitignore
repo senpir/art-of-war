@@ -7,3 +7,6 @@ build
 nbactions.xml
 nb-configuration.xml
 nbproject/
+/src/main/resources/scythes/nylo_melee_scythe.json
+/src/main/resources/scythes/nylo_range_scythe.json
+/hs_err_pid*.log
